@@ -1,36 +1,51 @@
 package main
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log"
 	"net/http"
 	"time"
 )
 
+// описываем класс application
 type application struct {
 	config config
 }
+
+// описываем класс config
 type config struct {
 	addr string
 }
 
 // метод который создаёт mux
-func (app *application) mount() *http.ServeMux {
-	mux := http.NewServeMux()
+func (app *application) mount() http.Handler {
+	r := chi.NewRouter()
 
-	mux.HandleFunc("GET / users")
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	return mux
+	r.Use(middleware.Timeout(60 * time.Second))
+
+	r.Route("/v1", func(r chi.Router) {
+		r.Get("/health", app.healthCheckHandler)
+	})
+
+	return r
 }
 
-func (app *application) run(mux *http.ServeMux) error {
-	//mux := http.NewServeMux()
+// Функция которая запускает наш сервер
+func (app *application) run(mux http.Handler) error {
 
+	//создаем переменнную srv которая создает сервер с определенными параметрами
 	srv := &http.Server{
 		Addr:         app.config.addr,
 		Handler:      mux,
 		WriteTimeout: time.Second * 30,
 		ReadTimeout:  time.Second * 10,
-		IdleTimeout:  time.Minute,
+		IdleTimeout:  time.Minute, //время простоя
 	}
 
 	log.Printf("server has started at %s", app.config.addr)
