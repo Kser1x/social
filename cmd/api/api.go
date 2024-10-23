@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Kser1x/social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"log"
@@ -10,12 +11,20 @@ import (
 
 // описываем класс application
 type application struct {
-	config config
+	config  config
+	storage store.Storage
 }
 
 // описываем класс config
 type config struct {
 	addr string
+	db   dbConfig
+}
+type dbConfig struct {
+	addr         string
+	maxOpenConns int
+	maxIdleConns int
+	maxIdleTime  string
 }
 
 // метод который создаёт mux
