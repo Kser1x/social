@@ -71,3 +71,27 @@ WHERE id = $1
 	}
 	return &post, nil
 }
+func (s *PostsStore) DeleteByID(ctx context.Context, id int64) (bool, error) {
+	query := `
+DELETE 
+FROM posts
+WHERE id = $1
+RETURNING id
+`
+	var result int64
+	err := s.db.QueryRowContext(ctx, query, id).Scan(
+		&result,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return false, ErrNotFound
+		default:
+			return false, err
+
+		}
+
+	}
+	return result == id, nil
+
+}
