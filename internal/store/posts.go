@@ -8,13 +8,14 @@ import (
 )
 
 type PostModel struct {
-	ID        int64    `json:"id"`
-	Content   string   `json:"content"`
-	Title     string   `json:"title"`
-	UserId    int64    `json:"user_id"`
-	Tags      []string `json:"tags"`
-	CreatedAt string   `json:"created_at"`
-	UpdatedAt string   `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Content   string    `json:"content"`
+	Title     string    `json:"title"`
+	UserId    int64     `json:"user_id"`
+	Tags      []string  `json:"tags"`
+	CreatedAt string    `json:"created_at"`
+	UpdatedAt string    `json:"updated_at"`
+	Comments  []Comment `json:"comments"`
 }
 
 type PostsStore struct {
@@ -94,4 +95,17 @@ RETURNING id
 	}
 	return result == id, nil
 
+}
+
+func (s *PostsStore) Update(ctx context.Context, post *PostModel) error {
+	query := `
+UPDATE posts
+SET title = $1, content = $2
+WHERE id = $3
+`
+	_, err := s.db.ExecContext(ctx, query, post.Title, post.Content, post.ID)
+	if err != nil {
+		return err
+	}
+	return err
 }
