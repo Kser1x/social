@@ -27,6 +27,9 @@ func (s *PostsStore) Create(ctx context.Context, post *PostModel) error {
 	query := `INSERT INTO posts (content, title, user_id, tags)
 				VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
 `
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
@@ -51,6 +54,9 @@ SELECT id, user_id, title, content, created_at, updated_at, tags, version
 FROM posts
 WHERE id = $1
 `
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	var post PostModel
 	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
@@ -81,6 +87,9 @@ FROM posts
 WHERE id = $1
 RETURNING id
 `
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	var result int64
 	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&result,
@@ -107,6 +116,8 @@ SET title = $1, content = $2, version = $5
 WHERE id = $3 AND version = $4
 RETURNING version
 `
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	err := s.db.QueryRowContext(
 		ctx,
