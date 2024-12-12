@@ -23,6 +23,7 @@ type Storage struct {
 		GetByID(context.Context, int64) (*UserModel, error)
 		DeleteByID(context.Context, int64) (bool, error)
 		Create(ctx context.Context, user *UserModel) error
+		Update(ctx context.Context, model *UserModel) error
 	}
 	Comments interface {
 		GetByPostID(context.Context, int64) ([]Comment, error)

@@ -97,3 +97,30 @@ RETURNING id
 	}
 	return result == userID, nil
 }
+func (s *UsersStore) Update(ctx context.Context, user *UserModel) error {
+	query := `
+UPDATE users
+SET username = $1, email = $2
+WHERE id = $3
+`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		user.Username,
+		user.Email,
+		user.ID)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrNotFound
+		default:
+			return err
+
+		}
+	}
+	return err
+}
