@@ -20,6 +20,8 @@ type Storage struct {
 		Update(ctx context.Context, model *PostModel) error
 	}
 	Users interface {
+		GetByID(context.Context, int64) (*UserModel, error)
+		DeleteByID(context.Context, int64) (bool, error)
 		Create(ctx context.Context, user *UserModel) error
 	}
 	Comments interface {
