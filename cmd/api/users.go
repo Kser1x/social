@@ -111,3 +111,46 @@ func getUserFromCtx(r *http.Request) *store.UserModel {
 	return user
 
 }
+
+type FollowUser struct {
+	UserID int64 `json:"user_id"`
+}
+
+func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request) {
+	followerUser := getUserFromCtx(r)
+
+	var payload FollowUser
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	if err := app.storage.Followers.Follow(ctx, followerUser.ID, payload.UserID); err != nil {
+		app.internalServerError(w, r, err)
+	}
+
+	if err := app.jsonResponse(w, http.StatusOK, nil); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Request) {
+	unfollowerUser := getUserFromCtx(r)
+
+	var payload FollowUser
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	if err := app.storage.Followers.Unfollow(ctx, unfollowerUser.ID, payload.UserID); err != nil {
+		app.internalServerError(w, r, err)
+	}
+
+	if err := app.jsonResponse(w, http.StatusNoContent, nil); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
