@@ -15,15 +15,16 @@ var (
 type Storage struct {
 	Posts interface {
 		GetByID(context.Context, int64) (*PostModel, error)
-		Create(ctx context.Context, post *PostModel) error
+		Create(context.Context, *PostModel) error
 		DeleteByID(context.Context, int64) (bool, error)
-		Update(ctx context.Context, model *PostModel) error
+		Update(context.Context, *PostModel) error
+		GetUserFeed(context.Context, int64) ([]PostWithMetadata, error)
 	}
 	Users interface {
 		GetByID(context.Context, int64) (*UserModel, error)
 		DeleteByID(context.Context, int64) (bool, error)
-		Create(ctx context.Context, user *UserModel) error
-		Update(ctx context.Context, model *UserModel) error
+		Create(context.Context, *UserModel) error
+		Update(context.Context, *UserModel) error
 	}
 	Comments interface {
 		GetByPostID(context.Context, int64) ([]Comment, error)
